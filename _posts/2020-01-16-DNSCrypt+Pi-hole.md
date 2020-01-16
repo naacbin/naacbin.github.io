@@ -3,8 +3,7 @@ layout: single
 title: How to increase your privacy with DNSCrypt and Pi-hole
 date: 2020-01-16
 excerpt: "I have always been aware of the lack of privacy on the Internet. But I only recently learned that anyone on your own personal network, or your ISP, could find out a lot about you through DNS queries, know which site you visit at what time, deduce the devices and services you use at home... Moreover, ISPs can censor websites, by blocking their name resolution. So, I will give you some insight on my setup to keep privacy and block known advertising and tracking domains."
-toc: true
-toc_label: "Table of contents"
+classes: wide
 categories:
   - privacy
   - tutorial
@@ -19,8 +18,6 @@ tags:
   - containers
 ---
 
-# How to increase your privacy with DNSCrypt and Pi-hole
-
 I have always been aware of the lack of privacy on the Internet. But I only recently learned that anyone on your own personal network, or your ISP, could find out a lot about you through DNS queries, know which site you visit at what time, deduce the devices and services you use at home... Moreover, ISPs can censor websites, by blocking their name resolution.
 
 Lately I've been hearing a lot about a solution to block _bad_ domain names, called Pi-hole, it's a DNS filtering solution. At first, I wanted to use it on my Synology NAS, but I ran into some problems and as I got a Raspberry Pi 4 2Go for Christmas, I decided to go for it.
@@ -28,7 +25,7 @@ Lately I've been hearing a lot about a solution to block _bad_ domain names, cal
 So, I will give you some insight on my setup to keep privacy and block known advertising and tracking domains.
 
 ---
-
+<br>
 ## Let's start
 
 ### Why DNS queries aren't secure ?
@@ -37,8 +34,8 @@ A DNS query is a question. In most cases a DNS request is used to convert a doma
 
 **DNS query to a legit DNS server :**
 
-```mermaid
-sequenceDiagram
+<div class="mermaid">
+  sequenceDiagram
     participant Client
     participant DNS server
     participant Gmail server
@@ -46,10 +43,11 @@ sequenceDiagram
     DNS server->>Client: IP is X.X.X.X
     Client->>Gmail server: Here are my credentials for gmail
     Gmail server->>Client: Credential verified, you're logged in
-```
+</div>
+
 **DNS query to a compromised DNS server :**
 
-```mermaid
+<div class="mermaid">
 sequenceDiagram
     participant Client
     participant Compromised DNS server
@@ -63,27 +61,25 @@ sequenceDiagram
     Gmail server-->>Attacker server: Credentials verified, you're logged in
     Note right of Attacker server: Attacker server <br> have your username <br> and password now
     Attacker server->>Client: Credentials verified, you're logged in
-```
+</div>
 
 This is a problem of integrity of the DNS server, to resolve it, **DNSSEC** has been created which fixes this issue but not the privacy ones. You can learn more about it here : [dnssec.vs.uni-due.de](https://dnssec.vs.uni-due.de/) and check if your DNS uses it (I recommend avoiding DNS that do not use DNSSEC). To resolve privacy issues you can use **DoH** (DNS-over-HTTPS) which encrypts your traffic using HTTPS so ISP can't see your traffic, only the DNS server which receives the request can. To do that I will use **DNSCrypt-proxy**. In addition I will add a **DNSCrypt-server** on my VPS, however, it's not a mandatory step.
 
 ---
+<br>
+## Raspberry Pi
 
-### Raspberry Pi
-
-#### Stuff
+###Stuff
 
 I'm using the default 16Go SD card that came with my Raspberry Pi, an Ethernet cable (but you can use Wi-Fi), and a USB-C power supply (5V/3A).
+<br>
 
-
-
-#### Install
+### Install
 
 Follow this [guide](https://hackernoon.com/raspberry-pi-headless-install-462ccabd75d0) to have a proper installation of the latest Raspbian version without a GUI. Don't forget to download the **Lite version**.
+<br>
 
-
-
-#### Setup
+### Setup
 
 Connect through SSH and run raspi-config.
 
@@ -95,7 +91,7 @@ ssh pi@raspberry.pi # Can work if you can't find IP
 sudo raspi-config # Use this command when you are connected to configure your Raspberry
 ```
 
-![raspi-config](../assets/images/dnscrypt_pi-hole/raspi-config.png)
+![raspi-config](/assets/images/dnscrypt_pi-hole/raspi-config.png)
 
 - Change your password.
 - Change localization and keyboard layout if needed.
@@ -114,15 +110,15 @@ Setup a static IP :
 vi dhcpcd.conf # If you're not familiar with vi use nano instead
 ```
 
-![static-ip](../assets/images/dnscrypt_pi-hole/static-ip.png)
+![static-ip](/assets/images/dnscrypt_pi-hole/static-ip.png)
 
 Uncomment the two lines under **_Example static IP configuration_**. The first line corresponds to the interface (run `ip a` on linux to check your current IP configuration, interfaces...), and the second one to the private IP you want to attribute, choose one that is not currently used in your network.
 
 ---
+<br>
+## Pi-hole
 
-### Pi-hole
-
-#### What is Pi-hole ?
+### What is Pi-hole ?
 
 Pi-hole is an **open source** DNS server, which acts as a [DNS sinkhole](https://en.wikipedia.org/wiki/DNS_sinkhole) to block advertisements and Web trackers. It can act as a DHCP server too. Pi-hole receives DNS queries from clients connected to it and requests a response from a DNS resolver if the domain name isn't in its blocklist/blacklist.
 
@@ -130,21 +126,21 @@ Pi-hole has a default blocklist which contains about 110,000 domains to block. H
 
 **Be careful, blocking some domain can break access to a website, so you need to use whitelists.**
 
-![pi-hole_network_diagram"](../assets/images/dnscrypt_pi-hole/pi-hole_network_diagram.png)
+![pi-hole_network_diagram"](/assets/images/dnscrypt_pi-hole/pi-hole_network_diagram.png)
 
 Image from [virtualthoughts.blob.core.windows.net](https://virtualthoughts.blob.core.windows.net).
+<br>
 
-
-
-#### Install
+### Install
 
 ```bash
 curl -sSL https://install.pi-hole.net | bash
 ```
 
 When it asks you to choose upstream DNS, choose DNSWatch or Quad9 (we will change it later). Always check the default configuration for next steps.
+<br>
 
-#### Setup
+### Setup
 
 Set a new password for the administration of Pi-hole :
 
@@ -154,7 +150,7 @@ pihole -a -p
 
 Once it's done, go to http://X.X.X.X/admin (where X.X.X.X corresponds to the IP of the raspberry) and connect to the interface.
 
-![pi-hole_interface](../assets/images/dnscrypt_pi-hole/pi-hole_interface.png)
+![pi-hole_interface](/assets/images/dnscrypt_pi-hole/pi-hole_interface.png)
 
 Go to Settings -> Blocklists and add all those links, it will block about 1,6M domains.
 
@@ -183,18 +179,17 @@ Pi-hole can easily be bypassed by setting another IP address into DNS configurat
 When all of this is done, check that everything works fine when accessing a website.
 
 ---
+<br>
+## DNSCrypt-proxy
 
-### DNSCrypt-proxy
-
-#### What is DNSCrypt-proxy ?
+### What is DNSCrypt-proxy ?
 
 > DNSCrypt is a protocol that authenticates communications between a DNS client and a DNS resolver.
 
 DNSCrypt-proxy is an implementation of DNSCrypt written in Golang by [jedisct1](https://github.com/jedisct1) which support DoH and Anonymized-DNSCrypt too.
+<br>
 
-
-
-#### Install
+### Install
 
 - Check [repository](https://github.com/jedisct1/DNSCrypt-proxy/releases/) for the latest version, download it with the following command, replace `X.X.XX` with the version number you find.
   ```bash
@@ -212,10 +207,9 @@ DNSCrypt-proxy is an implementation of DNSCrypt written in Golang by [jedisct1](
   ```bash
   cp example-dnscrypt-proxy.toml dnscrypt-proxy.toml
   ```
+<br>
 
-
-
-#### Setup
+### Setup
 
 Edit the file.
 
@@ -242,8 +236,8 @@ vi dnscrypt-proxy.toml
 
 **DNS query using Anonymized DNS :**
 
-```mermaid
-sequenceDiagram
+<div class="mermaid">
+  sequenceDiagram
     participant Client
     participant DNSCrypt relay
     participant DNSCrypt server
@@ -253,7 +247,7 @@ sequenceDiagram
     DNSCrypt server-->>DNSCrypt relay: Encrypted Response
     DNSCrypt relay->>Client: Encrypted Response
     Note over Client: Decrypt response 
-```
+</div>
 
 - Install DNSCrypt-proxy service.
 
@@ -266,14 +260,13 @@ sequenceDiagram
   ```bash
   ./dnscrypt-proxy -service start
   ```
+<br>
 
-
-
-#### Other setup :
+### Other setup :
 
 On the web interface for Pi-hole, go to Settings -> DNS. Check the same boxes as in the screenshot below, and change 5300 to the port you chose in `dnscrypt-proxy.toml`:
 
-![upstream_dns](../assets/images/dnscrypt_pi-hole/upstream_dns.png)
+![upstream_dns](/assets/images/dnscrypt_pi-hole/upstream_dns.png)
 
 Enable DNSSEC validation :
 
@@ -301,16 +294,15 @@ To check DNSSEC, you can go to [dnssec.vs.uni-due.de](https://dnssec.vs.uni-due.
 To check DNSLeak, navigate to [dnsleaktest.com](https://www.dnsleaktest.com/) and choose _Extented test_.
 
 ---
+<br>
+## DNSCrypt-server
 
-### DNSCrypt-server
-
-#### What is DNSCrypt-server ?
+### What is DNSCrypt-server ?
 
 DNSCrypt-server is a DNS server that provides DNSSEC, DoH and a caching DNS resolver by default. It can be used to escape censorship and keep your life more private.
+<br>
 
-
-
-#### Install
+### Install
 
 If you haven't installed docker yet, follow this [guide](https://docs.docker.com/install/linux/docker-ce/debian/). When you're done, you can download the following docker container.
 
@@ -337,13 +329,13 @@ docker run --name=dnscrypt-server -p 443:443/udp -p 443:443/tcp --net=host --uli
 - `--restart=unless-stopped` restarts the container only when any user executes a command to stop the container, not when it fails because of an error.
 - `--net=host` is for using host network instead of the default bridge.
 - `--volume`, or `-v` in our case, is used to map a host volume to a docker volume. The first is the host volume, the second is the docker volume.
-
+<br>
 The following arguments are specific to the DNSCrypt-server container:
 
 - `-N` is the name of our DNSCrypt-server, choose whatever you want.
 - `-E` is the IP address to which the client will connect.
 - `X.X.X.X` represents the public IP of your VPS.
-
+<br>
 To see if our container is running check :
 
 ```bash
@@ -361,12 +353,9 @@ NOTE: to remove the container, use
 ```bash
 docker rm --force dnscrypt-server
 ```
-
 See more documentation on [github](https://github.com/DNSCrypt/DNSCrypt-server-docker).
-
-
-
-
+<br>
+<br>
 
 I would like to thanks **@HexPandaa** who read over my article to add readability and corrected my mistakes, you can go and have a look at his [github](https://github.com/HexPandaa).
 
