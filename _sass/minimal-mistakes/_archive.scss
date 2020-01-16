@@ -129,6 +129,10 @@
     margin: 0 0 4px;
     font-size: 0.6em;
   }
+  .page__meta_date {
+    margin: 0 0 4px;
+    font-size: 0.8em;
+  }
 }
 
 /*
@@ -444,4 +448,12 @@
       padding-right: 0;
     }
   }
+}
+
+/* Place inside a single layout */
+
+  .layout--single {
+	.feature__wrapper {
+		display: inline-block;
+	}
 }

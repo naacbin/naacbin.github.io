@@ -13,9 +13,9 @@ $paragraph-indent: false !default; // true, false (default)
 $indent-var: 1.3em !default;
 
 /* system typefaces */
+
 $serif: Georgia, Times, serif !default;
-$sans-serif: -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI",
-  "Helvetica Neue", "Lucida Grande", Arial, sans-serif !default;
+$sans-serif: -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", "Helvetica Neue", "Lucida Grande", Arial, sans-serif !default;
 $monospace: Monaco, Consolas, "Lucida Console", monospace !default;
 
 /* sans serif typefaces */
@@ -29,8 +29,9 @@ $bodoni: "Bodoni MT", serif !default;
 $calisto: "Calisto MT", serif !default;
 $garamond: Garamond, serif !default;
 
-$global-font-family: $sans-serif !default;
-$header-font-family: $sans-serif !default;
+
+$global-font-family : $serif !default;
+$header-font-family : $sans-serif !default;
 $caption-font-family: $serif !default;
 
 /* type scale */
@@ -86,6 +87,7 @@ $foursquare-color: #0072b1 !default;
 $github-color: #171516 !default;
 $gitlab-color: #e24329 !default;
 $instagram-color: #517fa4 !default;
+$keybase-color: #ef7639 !default;
 $lastfm-color: #d51007 !default;
 $linkedin-color: #007bb6 !default;
 $mastodon-color: #2b90d9 !default;
