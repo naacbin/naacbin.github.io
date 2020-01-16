@@ -47,22 +47,7 @@ A DNS query is a question. In most cases a DNS request is used to convert a doma
 
 **DNS query to a compromised DNS server :**
 
-<div class="mermaid">
-sequenceDiagram
-    participant Client
-    participant Compromised DNS server
-    participant Attacker server
-    participant Gmail server
-    Client->>Compromised DNS server: What is the IP of gmail.com ?
-    Note right of Compromised DNS server: IP modified by <br> attacker sent <br> back  to  client
-    Compromised DNS server->>Client: IP is X.X.X.X
-    Client->>Attacker server: Here are my credentials for gmail
-    Attacker server-->>Gmail server: Here are my credentials for gmail
-    Gmail server-->>Attacker server: Credentials verified, you're logged in
-    Note right of Attacker server: Attacker server <br> have your username <br> and password now
-    Attacker server->>Client: Credentials verified, you're logged in
-</div>
-<br>
+![corrupt-dns_diagram](/assets/images/dnscrypt_pi-hole/corrupt-dns_diagram.png)
 
 This is a problem of integrity of the DNS server, to resolve it, **DNSSEC** has been created which fixes this issue but not the privacy ones. You can learn more about it here : [dnssec.vs.uni-due.de](https://dnssec.vs.uni-due.de/) and check if your DNS uses it (I recommend avoiding DNS that do not use DNSSEC). To resolve privacy issues you can use **DoH** (DNS-over-HTTPS) which encrypts your traffic using HTTPS so ISP can't see your traffic, only the DNS server which receives the request can. To do that I will use **DNSCrypt-proxy**. In addition I will add a **DNSCrypt-server** on my VPS, however, it's not a mandatory step.
 <br>
