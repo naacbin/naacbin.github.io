@@ -4,6 +4,7 @@ title: How to increase your privacy with DNSCrypt and Pi-hole
 date: 2020-01-16
 excerpt: "I have always been aware of the lack of privacy on the Internet. But I only recently learned that anyone on your own personal network, or your ISP, could find out a lot about you through DNS queries, know which site you visit at what time, deduce the devices and services you use at home... Moreover, ISPs can censor websites, by blocking their name resolution. So, I will give you some insight on my setup to keep privacy and block known advertising and tracking domains."
 classes: wide
+mermaid: true
 categories:
   - privacy
   - tutorial
@@ -17,18 +18,16 @@ tags:
   - admin-sys
   - containers
 ---
-
+<br>
 I have always been aware of the lack of privacy on the Internet. But I only recently learned that anyone on your own personal network, or your ISP, could find out a lot about you through DNS queries, know which site you visit at what time, deduce the devices and services you use at home... Moreover, ISPs can censor websites, by blocking their name resolution.
 
 Lately I've been hearing a lot about a solution to block _bad_ domain names, called Pi-hole, it's a DNS filtering solution. At first, I wanted to use it on my Synology NAS, but I ran into some problems and as I got a Raspberry Pi 4 2Go for Christmas, I decided to go for it.
 
 So, I will give you some insight on my setup to keep privacy and block known advertising and tracking domains.
 
----
 <br>
-## Let's start
 
-### Why DNS queries aren't secure ?
+## Why DNS queries aren't secure ?
 
 A DNS query is a question. In most cases a DNS request is used to convert a domain name like _example.com_ to an IP address like _127.0.0.1_, or the opposite. However this protocol isn't as secure as it should be. Indeed, all queries are sent as clear text, which means all the machines involved in the query chain know what you did and at what time. Moreover if your DNS server is corrupted, DNS queries can be modified. Below you can see examples of normal DNS queries vs. corrupt DNS queries.
 
@@ -65,11 +64,10 @@ sequenceDiagram
 
 This is a problem of integrity of the DNS server, to resolve it, **DNSSEC** has been created which fixes this issue but not the privacy ones. You can learn more about it here : [dnssec.vs.uni-due.de](https://dnssec.vs.uni-due.de/) and check if your DNS uses it (I recommend avoiding DNS that do not use DNSSEC). To resolve privacy issues you can use **DoH** (DNS-over-HTTPS) which encrypts your traffic using HTTPS so ISP can't see your traffic, only the DNS server which receives the request can. To do that I will use **DNSCrypt-proxy**. In addition I will add a **DNSCrypt-server** on my VPS, however, it's not a mandatory step.
 
----
 <br>
 ## Raspberry Pi
 
-###Stuff
+### Stuff
 
 I'm using the default 16Go SD card that came with my Raspberry Pi, an Ethernet cable (but you can use Wi-Fi), and a USB-C power supply (5V/3A).
 <br>
@@ -329,12 +327,15 @@ docker run --name=dnscrypt-server -p 443:443/udp -p 443:443/tcp --net=host --uli
 - `--restart=unless-stopped` restarts the container only when any user executes a command to stop the container, not when it fails because of an error.
 - `--net=host` is for using host network instead of the default bridge.
 - `--volume`, or `-v` in our case, is used to map a host volume to a docker volume. The first is the host volume, the second is the docker volume.
+
 <br>
+
 The following arguments are specific to the DNSCrypt-server container:
 
 - `-N` is the name of our DNSCrypt-server, choose whatever you want.
 - `-E` is the IP address to which the client will connect.
 - `X.X.X.X` represents the public IP of your VPS.
+
 <br>
 To see if our container is running check :
 
