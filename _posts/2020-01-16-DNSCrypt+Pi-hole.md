@@ -33,17 +33,7 @@ A DNS query is a question. In most cases a DNS request is used to convert a doma
 
 **DNS query to a legit DNS server :**
 
-<div class="mermaid">
-  sequenceDiagram
-    participant Client
-    participant DNS server
-    participant Gmail server
-    Client->>DNS server: What is the IP of gmail.com ?
-    DNS server->>Client: IP is X.X.X.X
-    Client->>Gmail server: Here are my credentials for gmail
-    Gmail server->>Client: Credential verified, you're logged in
-</div>
-<br>
+![dns_diagram](/assets/images/dnscrypt_pi-hole/dns_diagram.png)
 
 **DNS query to a compromised DNS server :**
 
@@ -219,18 +209,7 @@ vi dnscrypt-proxy.toml
 
 **DNS query using Anonymized DNS :**
 
-<div class="mermaid">
-  sequenceDiagram
-    participant Client
-    participant DNSCrypt relay
-    participant DNSCrypt server
-    Client-->>DNSCrypt relay: Encrypted Request
-    DNSCrypt relay->>DNSCrypt server: Encrypted Request
-    Note over DNSCrypt server: Decrypt request and <br> send response
-    DNSCrypt server-->>DNSCrypt relay: Encrypted Response
-    DNSCrypt relay->>Client: Encrypted Response
-    Note over Client: Decrypt response 
-</div>
+![anonymized-dns_diagram](/assets/images/dnscrypt_pi-hole/anonymized-dns_diagram.png)
 
 - Install DNSCrypt-proxy service.
 
