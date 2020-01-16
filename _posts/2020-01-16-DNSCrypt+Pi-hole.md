@@ -176,8 +176,8 @@ The first weeks you will probably get some errors trying to access on some sites
 Pi-hole can easily be bypassed by setting another IP address into DNS configuration, on smartphones, laptops... Furthermore some devices like IoT (_Internet of Things_) or TVs have hard-coded DNS servers, so it will bypass Pi-hole too.
 
 When all of this is done, check that everything works fine when accessing a website.
-<br>
 
+<br>
 ## DNSCrypt-proxy
 
 ### What is DNSCrypt-proxy ?
